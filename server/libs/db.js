@@ -5,8 +5,21 @@ const MONGO_URI = process.env.MONGO_URI;
 
 let instances = null;
 
+module.exports.dropDatabase = async () => {
+  console.log('dropping database');
+
+  if (instances === null) {
+    console.log('cannot drop database: connection does not exist');
+    return null;
+  }
+
+  await instances.db.dropDatabase();
+
+  console.log('database dropped');
+}
+
 module.exports.init = async () => {
-  console.log('connecting to MongoDB', instances);
+  console.log('connecting to MongoDB');
 
   const initDB = new Promise((resolve, reject) => {
 
@@ -23,7 +36,7 @@ module.exports.init = async () => {
       }
 
       console.log('connected to MongoDB successfully');
-     
+
       const db = client.db(DB_NAME);
 
       instances = { db, client };
