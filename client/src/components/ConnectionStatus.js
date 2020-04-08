@@ -1,4 +1,5 @@
 import React, { useState, useEffect} from 'react';
+import { Badge } from 'react-bootstrap';
 import SocketIOClient from "socket.io-client";
 
 let Socket = null;
@@ -10,9 +11,16 @@ const CONNECTION_STATUS = {
   loading: 'Loading connection status'
 };
 
+const CONNECTION_VARIANT = {
+  connected: 'success',
+  disconnected: 'danger',
+  checking: 'secondary',
+  loading: 'info'
+};
+
 function ConnectionStatus() {
   
-  const [status, setStatus] = useState(CONNECTION_STATUS.loading);
+  const [status, setStatus] = useState('loading');
   console.log('rendering SocketConnect', status);
 
   useEffect(() => {
@@ -21,18 +29,18 @@ function ConnectionStatus() {
       Socket = SocketIOClient(SOCKET_URL);
       Socket.on('connect', function() {
         console.log('socket connected');
-        setStatus(CONNECTION_STATUS.connected);
+        setStatus('connected');
       });
 
       Socket.on('disconnect', function() {
         console.log('socket disconnected');
-        setStatus(CONNECTION_STATUS.disconnected);
+        setStatus('disconnected');
       });
     }
   });
 
   return (
-    <div>{status}</div>
+    <Badge variant={CONNECTION_VARIANT[status]}>{CONNECTION_STATUS[status]}</Badge>
   );
 }
 
