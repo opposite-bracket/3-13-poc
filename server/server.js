@@ -26,7 +26,7 @@ const runServer = async () => {
   await Mongo.dropDatabase();
 
   Http.listen(SERVER_PORT, function(){
-    console.log('listening on *:3000');
+    console.log(`listening on *:${SERVER_PORT}`);
   });
 };
 

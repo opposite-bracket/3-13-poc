@@ -1,9 +1,12 @@
 import React from 'react';
+import ConnectionStatus from './components/ConnectionStatus';
 
 function App() {
+  console.log('rendering app')
   return (
     <div className="App">
-      App
+      App -
+      [<ConnectionStatus />]
     </div>
   );
 }
