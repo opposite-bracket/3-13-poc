@@ -1,15 +1,7 @@
 import React from 'react';
-import {Nav, Navbar, NavDropdown} from 'react-bootstrap';
+import {Nav, Navbar} from 'react-bootstrap';
 import Username from './Username';
 import ConnectionStatus from './ConnectionStatus';
-
-function UserDropdown () {
-  return (
-      <Navbar.Text>
-        Signed in as: <a href="#login"><Username /></a>
-      </Navbar.Text>
-  );
-}
 
 function PageNavbar() {
 

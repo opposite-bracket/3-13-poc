@@ -2,7 +2,6 @@ import React from 'react';
 import './App.scss'
 import {SocketProvider} from './providers/SocketConnection';
 import {Container} from 'react-bootstrap';
-import ConnectionStatus from './components/ConnectionStatus';
 import PageNavbar from './components/PageNavbar';
 
 function App() {
