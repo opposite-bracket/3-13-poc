@@ -1,16 +1,19 @@
 import React from 'react';
-import ConnectionStatus from './components/ConnectionStatus';
+import {SocketProvider} from './providers/SocketConnection';
 import {Container} from 'react-bootstrap';
+import ConnectionStatus from './components/ConnectionStatus';
 import './App.scss'
 
 function App() {
-  console.log('rendering app')
   return (
-    <div className="App">
-      <Container fluid>
-        App - <ConnectionStatus />
-      </Container>
-    </div>
+    <SocketProvider>
+      <div className="App">
+        <Container fluid>
+          app
+          <ConnectionStatus />
+        </Container>
+      </div>
+    </SocketProvider>
   );
 }
 
