@@ -37,8 +37,8 @@ export const SocketProvider = function ({children}) {
 
     const Socket = SocketIOClient(SOCKET_URL);
     Socket.on('connect', function() {
-      console.log('socket connected');
       setSocket({
+        ...SocketState,
         status: STATUS.connected,
         statusLabel: STATUS_LABELS.connected,
         connection: Socket
@@ -46,14 +46,18 @@ export const SocketProvider = function ({children}) {
     });
 
     Socket.on('disconnect', function() {
-      console.log('socket disconnected');
       setSocket({
+        ...SocketState,
         status: STATUS.disconnected,
         statusLabel: STATUS_LABELS.disconnected,
         connection: null
       });
     });
   }, []);
+
+  SocketState.isConnected = function() {
+    return this.status === STATUS.connected;
+  };
 
   return (
     <SocketContext.Provider value={SocketState}>

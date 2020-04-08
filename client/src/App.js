@@ -1,18 +1,16 @@
 import React from 'react';
+import './App.scss'
 import {SocketProvider} from './providers/SocketConnection';
 import {Container} from 'react-bootstrap';
 import ConnectionStatus from './components/ConnectionStatus';
-import './App.scss'
+import PageNavbar from './components/PageNavbar';
 
 function App() {
   return (
     <SocketProvider>
-      <div className="App">
-        <Container fluid>
-          app
-          <ConnectionStatus />
-        </Container>
-      </div>
+      <Container fluid className="pl-0 pr-0">
+        <PageNavbar />
+      </Container>
     </SocketProvider>
   );
 }
