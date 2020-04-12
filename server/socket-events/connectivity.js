@@ -2,20 +2,25 @@ const Users = require('../libs/users');
 
 module.exports = (Io) => {
 
-  Io.use((socket, next) => {
+  Io.use(async (socket, next) => {
     let token = socket.handshake.query.token;
-    console.log('token', token);
-    // if (isValid(token)) {
-    //   return next();
-    // }
-    // return next(new Error('authentication error'));
-    return next();
+    console.debug(`Connectiong attempt by ${token}`);
+
+    const user = await Users.getUserByToken(token);
+    console.log('user found by token', user);
+    if (token !== null) {
+      console.log('allowing connection');
+      return next();
+    }
+    console.log('prevengin user from connecting');
+    return next(new Error('authentication error'));
   });
 
-  Io.on('connection', function(socket) {
-    console.log('A user connected');
+  Io.on('connection', async (socket) => {
+    const token = socket.handshake.query.token;
+    console.log('A user connected', token);
 
-    // Users.createSocker(id, socket);
+    await Users.createSocker(token, socket);
     
     socket.on('disconnect', function() {
       console.log('user disconnected');
