@@ -28,12 +28,12 @@ ConnectivitySocketEvents(Io);
 App.use(`${API_VERSION}/users`, UserRouter);
 
 const runServer = async () => {
-  console.log('starting server ...');
+  console.debug('starting server ...');
   await Mongo.init();
   await Mongo.dropDatabase();
 
   Http.listen(SERVER_PORT, function(){
-    console.log(`listening on *:${SERVER_PORT}`);
+    console.debug(`listening on *:${SERVER_PORT}`);
   });
 };
 

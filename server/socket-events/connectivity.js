@@ -7,23 +7,23 @@ module.exports = (Io) => {
     console.debug(`Connectiong attempt by ${token}`);
 
     const user = await Users.getUserByToken(token);
-    console.debug('----- user found by token', user, token);
+    console.debug('user found by token', user, token);
     if (token !== null && user !== null) {
-      console.log('allowing connection');
+      console.debug('allowing connection');
       return next();
     }
-    console.log('preventing user from connecting');
+    console.debug('preventing user from connecting');
     return next(new Error('authentication error'));
   });
 
   Io.on('connection', async (socket) => {
     const token = socket.handshake.query.token;
-    console.log('A user connected', token);
+    console.debug('A user connected', token);
 
     await Users.createSocker(token, socket);
     
     socket.on('disconnect', function() {
-      console.log('user disconnected');
+      console.debug('user disconnected');
       Users.deleteUser(socket)
     });
   });

@@ -51,7 +51,7 @@ export const SessionProvider = function ({children}) {
   };
 
   SessionState.signIn = async (email, name) => {
-    console.log('login', email, name, `${API_URL}${USERS_API}`);
+    console.debug('login', email, name, `${API_URL}${USERS_API}`);
     const response = await Axios.post(`${API_URL}${USERS_API}`, {email, name});
     const session = response.data;
     const Socket = SocketIOClient(`${SOCKET_URL}?token=${session.token}`);
