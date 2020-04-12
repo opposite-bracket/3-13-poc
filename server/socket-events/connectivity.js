@@ -7,12 +7,12 @@ module.exports = (Io) => {
     console.debug(`Connectiong attempt by ${token}`);
 
     const user = await Users.getUserByToken(token);
-    console.log('user found by token', user);
-    if (token !== null) {
+    console.debug('----- user found by token', user, token);
+    if (token !== null && user !== null) {
       console.log('allowing connection');
       return next();
     }
-    console.log('prevengin user from connecting');
+    console.log('preventing user from connecting');
     return next(new Error('authentication error'));
   });
 
