@@ -1,6 +1,6 @@
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 import { Badge } from 'react-bootstrap';
-import {SocketContext, STATUS} from '../providers/SocketConnection';
+import {SessionContext, STATUS} from '../providers/SessionConnection';
 
 const CONNECTION_VARIANT = {
   [STATUS.connected]: 'success',
@@ -13,11 +13,11 @@ const CONNECTION_VARIANT = {
 
 function ConnectionStatus() {
   
-  const Socket = useContext(SocketContext);
-  const variant = CONNECTION_VARIANT[Socket.status];
+  const Session = useContext(SessionContext);
+  const variant = CONNECTION_VARIANT[Session.status];
 
   return (
-    <Badge variant={variant}>{Socket.statusLabel}</Badge>
+    <Badge variant={variant}>{Session.statusLabel}</Badge>
   );
 }
 

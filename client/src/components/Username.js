@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { Link } from "react-router-dom";
+import { SessionContext } from '../providers/SessionConnection';
 
 function Username() {
+
+  const Session = useContext(SessionContext);
+  const username = Session.isConnected()
+    ? Session.session.name
+    : 'Guest';
   return (
-    <>
-      Guest
-    </>
+    <Link to="/sign-in">{username}</Link>
   );
 }
 
