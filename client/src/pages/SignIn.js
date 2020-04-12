@@ -37,7 +37,6 @@ function SignIn() {
               id="email"
               className="form-control"
               aria-describedby="emailHelp"
-              defaultValue="opposite.bracket@gmail.com"
               ref={register({
                 required: 'Required',
                 pattern: {
@@ -68,7 +67,6 @@ function SignIn() {
               id="name"
               className="form-control"
               aria-describedby="nameHelp"
-              defaultValue="Arturo"
               ref={register({
                 required: 'Required'
               })}
