@@ -3,6 +3,7 @@ var Router = Express.Router();
 
 const Users = require('../libs/users');
 
+// @TODO: ensure values are available and valid
 Router.post('/', async (req, res) => {
   console.debug('creating new user from API ', req.body);
   const user = await Users.createUser(req.body.email, req.body.name);
