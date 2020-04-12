@@ -4,11 +4,11 @@ import {
   Col
 } from 'react-bootstrap';
 
-function CenterBox({children}) {
+function CenterBox({children, className}) {
 
   return (
     <Row>
-      <Col md={{ span: 4, offset: 4 }}>
+      <Col md={{ span: 4, offset: 4 }} className={className}>
         {children}
       </Col>
     </Row>

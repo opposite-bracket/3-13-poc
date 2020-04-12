@@ -1,12 +1,12 @@
 import React, {useState, useEffect} from 'react';
 import Axios from 'axios';
 import SocketIOClient from "socket.io-client";
-// import { useCookies } from 'react-cookie';
+import { useCookies } from 'react-cookie';
 
 const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
 const API_URL = process.env.REACT_APP_API_URL;
-const USERS_API = '/v1/users/'
-// const USER_ID_COOKIE = 'USER_ID_COOKIE';
+const USERS_API = '/v1/users/';
+const USER_ID_COOKIE = 'USER_ID_COOKIE';
 
 export const STATUS = {
   connected: 'connected',
@@ -32,9 +32,9 @@ export const SessionContext = React.createContext({
 
 export const SessionProvider = function ({children}) {
 
-  // const [cookies, setCookie, removeCookie] = useCookies([
-  //   USER_ID_COOKIE
-  // ]);
+  const [cookies, setCookie, removeCookie] = useCookies([
+    USER_ID_COOKIE
+  ]);
   const [SessionState, setSession] = useState({
     status: STATUS.disconnected,
     statusLabel: STATUS_LABELS.disconnected,
@@ -42,8 +42,32 @@ export const SessionProvider = function ({children}) {
     connection: null
   });
 
-  useEffect(() => {
-    // if token is in cookie, then connect automatically
+  useEffect(function () {
+
+    const session = cookies[USER_ID_COOKIE];
+    if( session !== undefined ) {
+      // @TODO: Move socket into their own module
+      const Socket = SocketIOClient(`${SOCKET_URL}?token=${session.token}`);
+      Socket.on('connect', function() {
+        setSession({
+          ...SessionState,
+          status: STATUS.connected,
+          statusLabel: STATUS_LABELS.connected,
+          connection: Socket,
+          session,
+        });
+      });
+  
+      Socket.on('disconnect', function() {
+        setSession({
+          ...SessionState,
+          status: STATUS.disconnected,
+          statusLabel: STATUS_LABELS.disconnected,
+          connection: null,
+          session: null,
+        });
+      });
+    }
   }, []);
 
   SessionState.isConnected = function() {
@@ -51,11 +75,13 @@ export const SessionProvider = function ({children}) {
   };
 
   SessionState.signIn = async (email, name) => {
-    console.debug('login', email, name, `${API_URL}${USERS_API}`);
+    // @TODO: Move API into their own module
     const response = await Axios.post(`${API_URL}${USERS_API}`, {email, name});
     const session = response.data;
+    // @TODO: Move socket into their own module
     const Socket = SocketIOClient(`${SOCKET_URL}?token=${session.token}`);
     Socket.on('connect', function() {
+      setCookie(USER_ID_COOKIE, session);
       setSession({
         ...SessionState,
         status: STATUS.connected,

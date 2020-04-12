@@ -44,8 +44,10 @@ module.exports.deleteUser = async (socket) => {
   console.debug('creating new user', socket.id);
   
   const collection = await getCollection();
-  const result = await collection.removeOne({
-    socketId: socket.id
+  const result = await collection.updateOne({ token }, {
+    $set: {socketId: null}
+  }, {
+    upsert: true
   });
   console.debug('instances removed', result.deletedCount);
 }
