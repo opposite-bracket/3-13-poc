@@ -8,12 +8,16 @@ import './App.scss'
 import { SessionProvider } from './providers/SessionConnection';
 import { CookiesProvider } from 'react-cookie';
 import {
-  Container
+  Container,
+    Row,
+    Col
 } from 'react-bootstrap';
 import PageNavbar from './components/PageNavbar';
+import Sidebar from './components/Sidebar';
 import Home from './pages/Home';
-import Board from './pages/Board';
+import Game from './pages/Game';
 import SignIn from './pages/SignIn';
+import Players from './pages/Players';
 
 function App() {
   return (
@@ -24,17 +28,27 @@ function App() {
             <PageNavbar />
 
             <div className="ml-3 mr-3 mt-3">
-              <Switch>
-                <Route exact path="/">
-                  <Home />
-                </Route>
-                <Route exact path="/board">
-                  <Board />
-                </Route>
-                <Route exact path="/sign-in">
-                  <SignIn />
-                </Route>
-              </Switch>
+              <Row>
+                <Col sm="2">
+                  <Sidebar />
+                </Col>
+                <Col sm="10">
+                  <Switch>
+                    <Route exact path="/">
+                      <Home />
+                    </Route>
+                    <Route exact path="/game">
+                      <Game />
+                    </Route>
+                    <Route exact path="/players">
+                      <Players />
+                    </Route>
+                    <Route exact path="/sign-in">
+                      <SignIn />
+                    </Route>
+                  </Switch>
+                </Col>
+              </Row>
             </div>
           </Container>
         </SessionProvider>

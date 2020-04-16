@@ -1,12 +1,12 @@
 import React from 'react';
 
-function Board() {
+function Game() {
 
   return (
     <>
-      Board
+      Game
     </>
   );
 }
 
-export default Board;
+export default Game;

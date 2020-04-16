@@ -37,19 +37,17 @@ module.exports.createSocker = async (token, socket) => {
   }, {
     upsert: true
   });
-  console.debug('instances upserted', result.insertedCount);
+  console.debug('instances upserted', result);
 }
 
-module.exports.deleteUser = async (socket) => {
-  console.debug('creating new user', socket.id);
+module.exports.deleteUserConnection = async (socketId) => {
+  console.debug('deleting user by token', socketId);
   
   const collection = await getCollection();
-  const result = await collection.updateOne({ token }, {
-    $set: {socketId: null}
-  }, {
-    upsert: true
+  const result = await collection.updateOne({ socketId }, {
+    $set: { socketId: null }
   });
-  console.debug('instances removed', result.deletedCount);
+  console.debug('Removing user connection', result.updateCount);
 }
 
 module.exports.getUserByToken = async(token) => {
@@ -59,6 +57,19 @@ module.exports.getUserByToken = async(token) => {
   const result = await collection.findOne({
     token
   });
-  console.debug('user found by token', result);
+  console.debug('user found by token');
   return result;
+}
+
+module.exports.getConnectedUsers = async () => {
+  console.debug('getting connected users');
+  
+  const collection = await getCollection();
+  const result = await collection.find({
+    socketId: {$ne: null}
+  }, {_id: 1, name: 1, socketId: 1});
+  
+  console.debug('loaded connected users');
+
+  return result.toArray();
 }

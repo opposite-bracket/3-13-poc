@@ -32,13 +32,14 @@ export const SessionContext = React.createContext({
 
 export const SessionProvider = function ({children}) {
 
-  const [cookies, setCookie, removeCookie] = useCookies([
+  const [cookies, setCookie] = useCookies([
     USER_ID_COOKIE
   ]);
   const [SessionState, setSession] = useState({
     status: STATUS.disconnected,
     statusLabel: STATUS_LABELS.disconnected,
     session: null,
+    users: [],
     connection: null
   });
 
@@ -49,26 +50,42 @@ export const SessionProvider = function ({children}) {
       // @TODO: Move socket into their own module
       const Socket = SocketIOClient(`${SOCKET_URL}?token=${session.token}`);
       Socket.on('connect', function() {
-        setSession({
-          ...SessionState,
-          status: STATUS.connected,
-          statusLabel: STATUS_LABELS.connected,
-          connection: Socket,
-          session,
+        setSession(state => {
+          return {
+            ...state,
+            status: STATUS.connected,
+            statusLabel: STATUS_LABELS.connected,
+            connection: Socket,
+            users: [],
+            session,
+          }
+        });
+      });
+
+      Socket.on('update-users', function(data) {
+        console.debug('this was triggered');
+        setSession(state => {
+          return {
+            ...state,
+            users: data.users
+          };
         });
       });
   
       Socket.on('disconnect', function() {
-        setSession({
-          ...SessionState,
-          status: STATUS.disconnected,
-          statusLabel: STATUS_LABELS.disconnected,
-          connection: null,
-          session: null,
+        setSession(state => {
+          return {
+            ...state,
+            status: STATUS.disconnected,
+            statusLabel: STATUS_LABELS.disconnected,
+            connection: null,
+            users: [],
+            session: null,
+          }
         });
       });
     }
-  }, []);
+  }, [cookies]);
 
   SessionState.isConnected = function() {
     return this.status === STATUS.connected;

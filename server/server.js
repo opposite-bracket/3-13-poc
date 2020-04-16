@@ -10,16 +10,17 @@ const Io = require('socket.io')(Http);
 const ConnectivitySocketEvents = require('./socket-events/connectivity');
 const UserRouter = require('./controllers/user');
 
+const SERVER_PORT = process.env.SERVER_PORT;
+const CLIENT_URL = process.env.CLIENT_URL;
+const API_VERSION = '/v1';
+
 App.use(Cors({
-  origin: 'http://localhost:3000',
+  origin: CLIENT_URL,
   // some legacy browsers (IE11, various SmartTVs) choke on 204
   optionsSuccessStatus: 200
 }));
 
 App.use(BodyParser.json());
-
-const SERVER_PORT = process.env.SERVER_PORT;
-const API_VERSION = '/v1';
 
 // load socket event
 ConnectivitySocketEvents(Io);
@@ -30,7 +31,7 @@ App.use(`${API_VERSION}/users`, UserRouter);
 const runServer = async () => {
   console.debug('starting server ...');
   await Mongo.init();
-  await Mongo.dropDatabase();
+  // await Mongo.dropDatabase();
 
   Http.listen(SERVER_PORT, function(){
     console.debug(`listening on *:${SERVER_PORT}`);

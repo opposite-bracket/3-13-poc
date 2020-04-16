@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from "react-router-dom";
 import {
   Nav,
   Navbar
@@ -19,8 +18,6 @@ function PageNavbar() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ml-auto">
-            <Link className="nav-link" to="/">Home</Link>
-              <Link className="nav-link mr-5" to="/board">Board</Link>
               <Navbar.Text>
                 Signed in as: <Username />
               </Navbar.Text>

@@ -8,7 +8,7 @@ function CenterBox({children, className}) {
 
   return (
     <Row>
-      <Col md={{ span: 4, offset: 4 }} className={className}>
+      <Col md={{ span: 6, offset: 2 }} className={className}>
         {children}
       </Col>
     </Row>

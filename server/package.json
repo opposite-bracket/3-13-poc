@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "debug": "nodemon server.js"
   },
   "engine": {
     "node": "v13.6.0",
