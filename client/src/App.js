@@ -15,7 +15,7 @@ import {
 import PageNavbar from './components/PageNavbar';
 import Sidebar from './components/Sidebar';
 import Home from './pages/Home';
-import Game from './pages/Game';
+import Games from './pages/Games';
 import SignIn from './pages/SignIn';
 import Players from './pages/Players';
 
@@ -38,7 +38,7 @@ function App() {
                       <Home />
                     </Route>
                     <Route exact path="/game">
-                      <Game />
+                      <Games />
                     </Route>
                     <Route exact path="/players">
                       <Players />

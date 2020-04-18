@@ -32,7 +32,7 @@ function Players() {
           </tr>
         </thead>
         <tbody>
-          {Session.users.map(user => (<Player key={`user-${user._id}`} user={user} player />))}
+          {Session.users.map(user => (<Player key={`user-${user._id}`} user={user} />))}
         </tbody>
       </Table>
     </>
