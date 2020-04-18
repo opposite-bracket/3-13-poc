@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "debug": "nodemon server.js",
-    "test": "mocha -w test/**/*.spec.js"
+    "test": "mocha -w **/*.spec.js"
   },
   "engine": {
     "node": "v13.6.0",
