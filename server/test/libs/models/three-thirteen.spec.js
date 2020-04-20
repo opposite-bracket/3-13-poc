@@ -70,6 +70,7 @@ describe('A game', function() {
     it('player 1 arranges cards', async function() {
       const game = await threeThirteen.getGame(this.game._id);
       const cards = game.currentRound.hands[this.userA._id];
+      const oldArrangement = Array.from(cards);
 
       // move first card to the middle
       const firstCard = cards.shift();
@@ -79,6 +80,7 @@ describe('A game', function() {
         this.game._id, this.userA._id, cards
       );
 
+      Assert.notEqual(oldArrangement, cards);
       Assert.equal(result.nModified, 1);
     });
   
