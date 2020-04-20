@@ -32,6 +32,7 @@ const runServer = async () => {
   console.debug('starting server ...');
   await Mongo.init();
   // await Mongo.dropDatabase();
+  // await Mongo.createIndexes();
 
   Http.listen(SERVER_PORT, function(){
     console.debug(`listening on *:${SERVER_PORT}`);

@@ -1,7 +1,7 @@
 var Express = require('express');
 var Router = Express.Router();
 
-const Users = require('../libs/users');
+const Users = require('../libs/models/users');
 
 // @TODO: ensure values are available and valid
 Router.post('/', async (req, res) => {

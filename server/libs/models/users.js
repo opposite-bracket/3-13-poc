@@ -4,7 +4,7 @@ const Uuid = require('uuid');
 const COLLECTION = 'users';
 
 const getCollection = async () => {
-  console.debug('getting collection');
+  console.debug(`getting collection ${COLLECTION}`);
   const mongo = await MongoDB.init();
 
   return mongo.db.collection(COLLECTION);

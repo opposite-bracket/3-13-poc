@@ -1,5 +1,5 @@
 const Assert = require('chai').assert;
-const Deck = require('../../libs/deck');
+const Deck = require('../../../libs/models/deck');
 
 describe('A deck of cards', function() {
   

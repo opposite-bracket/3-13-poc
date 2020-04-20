@@ -5,6 +5,19 @@ const MONGO_URI = process.env.MONGO_URI;
 
 let instances = null;
 
+module.exports.createIndexes = async () => {
+  console.debug('creating indexes');
+
+  if (instances === null) {
+    console.debug('creating indexes: connection does not exist');
+    return null;
+  }
+
+  // 
+
+  console.debug('indexes created');
+};
+
 module.exports.dropDatabase = async () => {
   console.debug('dropping database');
 

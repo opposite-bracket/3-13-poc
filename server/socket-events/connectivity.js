@@ -1,4 +1,4 @@
-const Users = require('../libs/users');
+const Users = require('../libs/models/users');
 
 module.exports = (Io) => {
   Io.use(async (socket, next) => {
