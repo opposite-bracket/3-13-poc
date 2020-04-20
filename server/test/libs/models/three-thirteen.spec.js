@@ -3,7 +3,7 @@ const ObjectId = require('mongodb').ObjectId;
 const threeThirteen = require('../../../libs/models/three-thirteen');
 const Deck = require('../../../libs/models/deck');
 
-describe.only('A game', function() {
+describe('A game', function() {
 
   before(function() {
     this.shuffleCount = 2;
@@ -53,22 +53,34 @@ describe.only('A game', function() {
     });
 
     it('Create hand for first turn in first round in a 2 player game', async function() {
-      const handCreationResult = await threeThirteen.createCurrentHand(this.game._id, this.cards);
-      Assert.equal(handCreationResult.nModified, 1);
+      const result = await threeThirteen.createCurrentHand(this.game._id, this.cards);
+      Assert.equal(result.nModified, 1);
     });
 
     it('Deal hand to players', async function() {
-      const dealHandsResult = await threeThirteen.dealHands(this.game._id);
-      Assert.equal(dealHandsResult.nModified, 1);
+      const result = await threeThirteen.dealHands(this.game._id);
+      Assert.equal(result.nModified, 1);
     });
   
-    // it('lock game', async function() {
-    //   threeThirteen.lockGame();
-    // });
+    it('lock game', async function() {
+      const result = await threeThirteen.lockGame(this.game._id);
+      Assert.equal(result.nModified, 1);
+    });
   
-  //   it('player 1 arrange cards', function() {
-  //     threeThirteen.arrangeCards();
-  //   });
+    it('player 1 arranges cards', async function() {
+      const game = await threeThirteen.getGame(this.game._id);
+      const cards = game.currentRound.hands[this.userA._id];
+
+      // move first card to the middle
+      const firstCard = cards.shift();
+      cards.splice(1, 0, firstCard);
+      
+      const result = await threeThirteen.arrangeCards(
+        this.game._id, this.userA._id, cards
+      );
+
+      Assert.equal(result.nModified, 1);
+    });
   
   //   it('player 2 arranges cards', function() {
   //     threeThirteen.playTurn();

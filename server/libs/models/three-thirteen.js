@@ -27,7 +27,11 @@ const getCollection = async () => {
   return mongo.db.collection(COLLECTION);
 };
 
-
+module.exports.getGame = async (gameId) => {
+  console.debug(`loading game #${gameId}`);
+  const collection = await getCollection();
+  return await collection.findOne({ _id: gameId });
+};
 
 module.exports.createGame = async (creatorId, creatorName, shuffleCount) => {
   console.debug(`creating new threeThirteen game for creator #${creatorId}`);
@@ -82,8 +86,8 @@ module.exports.createCurrentHand = async (gameId, cards) => {
   return commandResult.result;
 };
 
-module.exports.dealHands = async (gameId, playingHand) => {
-  console.debug(`dealing hand for game #${gameId} in playing hand #${playingHand}`);
+module.exports.dealHands = async (gameId) => {
+  console.debug(`dealing hand for game #${gameId}`);
   
   const collection = await getCollection();
   const game = await collection.findOne({ _id: gameId });
@@ -119,9 +123,37 @@ module.exports.dealHands = async (gameId, playingHand) => {
   return commandResult.result;
 };
 
-module.exports.lockParticipants = async () => {};
-module.exports.lockGame = async () => {};
-module.exports.arrangeCards = async () => {};
+module.exports.lockGame = async (gameId) => {
+  console.debug(`lock game #${gameId}`);
+  
+  const collection = await getCollection();
+  const commandResult = await collection.updateOne({
+    _id: gameId
+  }, {
+    $set: {
+      status: GAME_STATUS.locked,
+    }
+  });
+  console.debug('game locked', commandResult.result);
+
+  return commandResult.result;
+};
+
+module.exports.arrangeCards = async (gameId, userId, cards) => {
+  console.debug(`lock game #${gameId}`);
+  
+  const collection = await getCollection();
+  const commandResult = await collection.updateOne({
+    _id: gameId
+  }, {
+    $set: {
+      [`currentRound.hands.${userId}`]: cards,
+    }
+  });
+  console.debug('game locked', commandResult.result);
+
+  return commandResult.result;
+};
 module.exports.playTurn = async () => {};
 module.exports.finishHand = async () => {};
 module.exports.saveScore = async () => {};
