@@ -40,6 +40,7 @@ module.exports.createGame = async (creatorId, creatorName, shuffleCount) => {
   const commandResult = await collection.insert({
     creatorId,
     shuffleCount,
+    nockingPlayerId: null,
     currentTurn: 0,
     currentRoundIndex: 0,
     status: GAME_STATUS.open,
@@ -202,11 +203,14 @@ module.exports.finishTurn = async (gameId, playerId, cardToDiscard, nocks = fals
 
   game.currentRoundIndex++;
 
+  game.nockingPlayerId = nocks ? playerId : null;
+
   const commandResult = await collection.updateOne({
     _id: gameId
   }, {
     $set: {
       currentRoundIndex: game.currentRoundIndex,
+      nockingPlayerId: game.nockingPlayerId,
       'currentRound.discardPile': game.currentRound.discardPile,
       [`currentRound.hands.${playerId}`]: game.currentRound.hands[playerId],
     }

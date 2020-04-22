@@ -36,6 +36,7 @@ describe('A game', function() {
     Assert.equal(this.game.currentRoundIndex, 0);
     // set shuffle count
     Assert.equal(this.game.shuffleCount, this.shuffleCount);
+    Assert.equal(this.game.nockedPlayerId, null);
   });
 
   it('Have 2 players join', async function() {
@@ -102,6 +103,7 @@ describe('A game', function() {
       Assert.equal(updatedGame.currentRoundIndex, 0);
       Assert.equal(updatedGame.currentRound.discardPile.length, 1);
       Assert.equal(Object.keys(updatedGame.currentRound.hands).length, 2);
+      Assert.isNull(updatedGame.nockingPlayerId);
       Assert.equal(updatedGame.currentRound.cards.length, 47);
       Assert.equal(updatedGame.currentRound.hands[this.playerA._id].length, 3);
       Assert.equal(updatedGame.currentRound.hands[this.playerB._id].length, 3);
@@ -115,21 +117,55 @@ describe('A game', function() {
       Assert.equal(updatedGame.currentRoundIndex, 0);
       Assert.equal(updatedGame.currentRound.discardPile.length, 1);
       Assert.equal(Object.keys(updatedGame.currentRound.hands).length, 2);
+      Assert.isNull(updatedGame.nockingPlayerId);
       Assert.equal(updatedGame.currentRound.cards.length, 46);
       Assert.equal(updatedGame.currentRound.hands[this.playerA._id].length, 4);
       Assert.equal(updatedGame.currentRound.hands[this.playerB._id].length, 3);
     });
 
-    it('player 2 finishes turn picking up from the deck', async function() {
+    it('player 1 finishes turn picking up from the deck', async function() {
       const game = await threeThirteen.getGame(this.game._id);
       const cardToDiscard = game.currentRound.hands[this.playerA._id].pop();
       const result = await threeThirteen.finishTurn(this.game._id, this.playerA._id, cardToDiscard);
       
       const updatedGame = await threeThirteen.getGame(this.game._id);
       Assert.equal(result.nModified, 1);
+
       Assert.equal(updatedGame.currentRoundIndex, 1);
       Assert.equal(updatedGame.currentRound.discardPile.length, 2);
       Assert.equal(Object.keys(updatedGame.currentRound.hands).length, 2);
+      Assert.isNull(updatedGame.nockingPlayerId);
+      Assert.equal(updatedGame.currentRound.cards.length, 46);
+      Assert.equal(updatedGame.currentRound.hands[this.playerA._id].length, 3);
+      Assert.equal(updatedGame.currentRound.hands[this.playerB._id].length, 3);
+    });
+
+    it('player 2 starts turn picking up from the discard pile and nocks', async function() {
+      const result = await threeThirteen.startTurn(this.game._id, this.playerB._id, false);
+      
+      const updatedGame = await threeThirteen.getGame(this.game._id);
+      Assert.equal(result.nModified, 1);
+      Assert.equal(updatedGame.currentRoundIndex, 1);
+      Assert.equal(updatedGame.currentRound.discardPile.length, 1);
+      Assert.equal(Object.keys(updatedGame.currentRound.hands).length, 2);
+      Assert.isNull(updatedGame.nockingPlayerId);
+      Assert.equal(updatedGame.currentRound.cards.length, 46);
+      Assert.equal(updatedGame.currentRound.hands[this.playerA._id].length, 3);
+      Assert.equal(updatedGame.currentRound.hands[this.playerB._id].length, 4);
+    });
+
+    it('player 2 finishes turn picking up from the discard pile', async function() {
+      const game = await threeThirteen.getGame(this.game._id);
+      const cardToDiscard = game.currentRound.hands[this.playerB._id].pop();
+      const result = await threeThirteen.finishTurn(this.game._id, this.playerB._id, cardToDiscard, true);
+      
+      const updatedGame = await threeThirteen.getGame(this.game._id);
+      Assert.equal(result.nModified, 1);
+      Assert.equal(updatedGame.currentRoundIndex, 2);
+      Assert.equal(updatedGame.currentRound.discardPile.length, 2);
+      Assert.equal(Object.keys(updatedGame.currentRound.hands).length, 2);
+      Assert.equal(updatedGame.nockingPlayerId.toString(), this.playerB._id.toString());
+      Assert.equal(updatedGame.currentRound.cards.length, 46);
       Assert.equal(updatedGame.currentRound.hands[this.playerA._id].length, 3);
       Assert.equal(updatedGame.currentRound.hands[this.playerB._id].length, 3);
     });
