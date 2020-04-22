@@ -66,14 +66,15 @@ describe('A game', function() {
     it('Deal hand to players', async function() {
       const result = await threeThirteen.dealHands(this.game._id);
       
-      const game = await threeThirteen.getGame(this.game._id);
+      const updatedGame = await threeThirteen.getGame(this.game._id);
       Assert.equal(result.nModified, 1);
       // ensure cards are distributed
-      Assert.equal(game.currentRoundIndex, 0);
-      Assert.equal(game.currentRound.discardPile.length, 1);
-      Assert.equal(Object.keys(game.currentRound.hands).length, 2);
-      Assert.equal(game.currentRound.hands[this.playerA._id].length, 3);
-      Assert.equal(game.currentRound.hands[this.playerB._id].length, 3);
+      Assert.equal(updatedGame.currentRoundIndex, 0);
+      Assert.equal(updatedGame.currentRound.discardPile.length, 1);
+      Assert.equal(Object.keys(updatedGame.currentRound.hands).length, 2);
+      Assert.equal(updatedGame.currentRound.cards.length, 47);
+      Assert.equal(updatedGame.currentRound.hands[this.playerA._id].length, 3);
+      Assert.equal(updatedGame.currentRound.hands[this.playerB._id].length, 3);
     });
   
     it('lock game', async function() {
@@ -95,28 +96,31 @@ describe('A game', function() {
       );
 
       const updatedGame = await threeThirteen.getGame(this.game._id);
+
       Assert.notEqual(oldArrangement, cards);
       Assert.equal(result.nModified, 1);
       Assert.equal(updatedGame.currentRoundIndex, 0);
       Assert.equal(updatedGame.currentRound.discardPile.length, 1);
       Assert.equal(Object.keys(updatedGame.currentRound.hands).length, 2);
+      Assert.equal(updatedGame.currentRound.cards.length, 47);
       Assert.equal(updatedGame.currentRound.hands[this.playerA._id].length, 3);
       Assert.equal(updatedGame.currentRound.hands[this.playerB._id].length, 3);
     });
   
-    it('player 1 starts turn picking up from the discard pile', async function() {
+    it('player 1 starts turn picking up from the deck', async function() {
       const result = await threeThirteen.startTurn(this.game._id, this.playerA._id);
       
       const updatedGame = await threeThirteen.getGame(this.game._id);
       Assert.equal(result.nModified, 1);
       Assert.equal(updatedGame.currentRoundIndex, 0);
-      Assert.equal(updatedGame.currentRound.discardPile.length, 0);
+      Assert.equal(updatedGame.currentRound.discardPile.length, 1);
       Assert.equal(Object.keys(updatedGame.currentRound.hands).length, 2);
+      Assert.equal(updatedGame.currentRound.cards.length, 46);
       Assert.equal(updatedGame.currentRound.hands[this.playerA._id].length, 4);
       Assert.equal(updatedGame.currentRound.hands[this.playerB._id].length, 3);
     });
 
-    it('player 2 finishes turn picking up from the discard pile', async function() {
+    it('player 2 finishes turn picking up from the deck', async function() {
       const game = await threeThirteen.getGame(this.game._id);
       const cardToDiscard = game.currentRound.hands[this.playerA._id].pop();
       const result = await threeThirteen.finishTurn(this.game._id, this.playerA._id, cardToDiscard);
@@ -124,7 +128,7 @@ describe('A game', function() {
       const updatedGame = await threeThirteen.getGame(this.game._id);
       Assert.equal(result.nModified, 1);
       Assert.equal(updatedGame.currentRoundIndex, 1);
-      Assert.equal(updatedGame.currentRound.discardPile.length, 1);
+      Assert.equal(updatedGame.currentRound.discardPile.length, 2);
       Assert.equal(Object.keys(updatedGame.currentRound.hands).length, 2);
       Assert.equal(updatedGame.currentRound.hands[this.playerA._id].length, 3);
       Assert.equal(updatedGame.currentRound.hands[this.playerB._id].length, 3);
