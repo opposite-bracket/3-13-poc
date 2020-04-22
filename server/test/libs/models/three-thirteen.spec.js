@@ -7,7 +7,7 @@ describe('A game', function() {
 
   before(function() {
     this.shuffleCount = 2;
-    this.userA = {
+    this.playerA = {
       _id: ObjectId(),
       name: 'User A'
     };
@@ -16,18 +16,18 @@ describe('A game', function() {
       name: 'User B'
     };
     this.players = [
-      this.userA,
+      this.playerA,
       this.userB
     ]
   });
   
   it('Create game', async function() {
-    this.game = await threeThirteen.createGame(this.userA._id, this.userA.name, this.shuffleCount);
+    this.game = await threeThirteen.createGame(this.playerA._id, this.playerA.name, this.shuffleCount);
     Assert.isNotEmpty(this.game._id);
-    Assert.equal(this.game.creatorId, this.userA._id);
+    Assert.equal(this.game.creatorId, this.playerA._id);
     // players
     Assert.equal(this.game.players.length, 1);
-    Assert.deepEqual(this.game.players[0], this.userA);
+    Assert.deepEqual(this.game.players[0], this.playerA);
     // status
     Assert.equal(this.game.status, threeThirteen.GAME_STATUS.open);
     // current turn
@@ -69,7 +69,7 @@ describe('A game', function() {
   
     it('player 1 arranges cards', async function() {
       const game = await threeThirteen.getGame(this.game._id);
-      const cards = game.currentRound.hands[this.userA._id];
+      const cards = game.currentRound.hands[this.playerA._id];
       const oldArrangement = Array.from(cards);
 
       // move first card to the middle
@@ -77,24 +77,24 @@ describe('A game', function() {
       cards.splice(1, 0, firstCard);
       
       const result = await threeThirteen.arrangeCards(
-        this.game._id, this.userA._id, cards
+        this.game._id, this.playerA._id, cards
       );
 
       Assert.notEqual(oldArrangement, cards);
       Assert.equal(result.nModified, 1);
     });
   
-  //   it('player 2 arranges cards', function() {
-  //     threeThirteen.playTurn();
-  //   });
-  
-  //   it('player 2 arranges cards', function() {
-  //     threeThirteen.playTurn();
-  //   });
-  
-  //   it('player 1 plays turn', function() {
-  //     threeThirteen.playTurn();
-  //   });
+    it('player 1 starts turn picking up from the pile', async function() {
+      const result = await threeThirteen.startTurn(this.game._id, this.playerA._id);
+      Assert.equal(result.nModified, 1);
+    });
+
+    it('player 2 finishes turn picking up from the pile', async function() {
+      const game = await threeThirteen.getGame(this.game._id);
+      const cardToDiscard = game.currentRound.hands[this.playerA._id].pop();
+      const result = await threeThirteen.finishTurn(this.game._id, this.playerA._id, cardToDiscard);
+      Assert.equal(result.nModified, 1);
+    });
   
   //   it('player 2 plays turn', function() {
   //     threeThirteen.playTurn();

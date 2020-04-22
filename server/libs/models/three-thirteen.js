@@ -111,6 +111,9 @@ module.exports.dealHands = async (gameId) => {
     });
   }
 
+  // top card of the discard pile for users to opt to
+  game.currentRound.discardPile.push(game.currentRound.cards.pop());
+
   const commandResult = await collection.updateOne({
     _id: gameId
   }, {
@@ -139,7 +142,7 @@ module.exports.lockGame = async (gameId) => {
   return commandResult.result;
 };
 
-module.exports.arrangeCards = async (gameId, userId, cards) => {
+module.exports.arrangeCards = async (gameId, playerId, cards) => {
   console.debug(`lock game #${gameId}`);
   
   const collection = await getCollection();
@@ -147,14 +150,66 @@ module.exports.arrangeCards = async (gameId, userId, cards) => {
     _id: gameId
   }, {
     $set: {
-      [`currentRound.hands.${userId}`]: cards,
+      [`currentRound.hands.${playerId}`]: cards,
     }
   });
   console.debug('game locked', commandResult.result);
 
   return commandResult.result;
 };
-module.exports.playTurn = async () => {};
+
+module.exports.startTurn = async (gameId, playerId, picksFromPile = true) => {
+  console.debug(`player #${playerId} plays turn in game #${gameId}`);
+
+  const collection = await getCollection();
+  const game = await collection.findOne({ _id: gameId });
+  const card = picksFromPile
+    ? game.currentRound.discardPile.pop()
+    : game.currentRound.cards.pop();
+
+  game.currentRound.hands[playerId].push(card);
+  // @TODO: minor improvement could be to only update
+  //        either discardPile or cards but not both
+  const commandResult = await collection.updateOne({
+    _id: gameId
+  }, {
+    $set: {
+      'currentRound.discardPile': game.currentRound.discardPile,
+      'currentRound.cards': game.currentRound.cards,
+      [`currentRound.hands.${playerId}`]: game.currentRound.hands[playerId],
+    }
+  });
+  console.debug(`player #${playerId} played turn in game #${gameId}`);
+
+  return commandResult.result;
+};
+
+module.exports.finishTurn = async (gameId, playerId, cardToDiscard, nocks = false) => {
+  console.debug(`player #${playerId} plays turn in game #${gameId}`);
+
+  const collection = await getCollection();
+  const game = await collection.findOne({ _id: gameId });
+
+  const cardIndex = game.currentRound.hands[playerId].indexOf(cardToDiscard);
+  
+  if(cardIndex === -1) throw Error('card to discard is invalid');
+
+  const [card] = game.currentRound.hands[playerId].splice(cardIndex, 1);
+  game.currentRound.discardPile.push(card);
+
+  const commandResult = await collection.updateOne({
+    _id: gameId
+  }, {
+    $set: {
+      'currentRound.discardPile': game.currentRound.discardPile,
+      [`currentRound.hands.${playerId}`]: game.currentRound.hands[playerId],
+    }
+  });
+  console.debug(`player #${playerId} played turn in game #${gameId}`);
+
+  return commandResult.result;
+};
+
 module.exports.finishHand = async () => {};
 module.exports.saveScore = async () => {};
 module.exports.calculateWinner = async () => {};
