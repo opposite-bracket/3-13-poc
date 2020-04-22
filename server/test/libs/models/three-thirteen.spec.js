@@ -11,13 +11,13 @@ describe('A game', function() {
       _id: ObjectId(),
       name: 'User A'
     };
-    this.userB = {
+    this.playerB = {
       _id: ObjectId(),
       name: 'User B'
     };
     this.players = [
       this.playerA,
-      this.userB
+      this.playerB
     ]
   });
   
@@ -40,7 +40,7 @@ describe('A game', function() {
 
   it('Have 2 players join', async function() {
     const result = await threeThirteen.joinPlayer(
-      this.game._id, this.userB._id, this.userB.name
+      this.game._id, this.playerB._id, this.playerB.name
     );
 
     Assert.equal(result.nModified, 1);
@@ -54,12 +54,26 @@ describe('A game', function() {
 
     it('Create hand for first turn in first round in a 2 player game', async function() {
       const result = await threeThirteen.createCurrentHand(this.game._id, this.cards);
+
+      const game = await threeThirteen.getGame(this.game._id);
       Assert.equal(result.nModified, 1);
+      // ensure cards are distributed
+      Assert.equal(game.currentRoundIndex, 0);
+      Assert.equal(game.currentRound.discardPile.length, 0);
+      Assert.equal(Object.keys(game.currentRound.hands).length, 0);
     });
 
     it('Deal hand to players', async function() {
       const result = await threeThirteen.dealHands(this.game._id);
+      
+      const game = await threeThirteen.getGame(this.game._id);
       Assert.equal(result.nModified, 1);
+      // ensure cards are distributed
+      Assert.equal(game.currentRoundIndex, 0);
+      Assert.equal(game.currentRound.discardPile.length, 1);
+      Assert.equal(Object.keys(game.currentRound.hands).length, 2);
+      Assert.equal(game.currentRound.hands[this.playerA._id].length, 3);
+      Assert.equal(game.currentRound.hands[this.playerB._id].length, 3);
     });
   
     it('lock game', async function() {
@@ -80,20 +94,40 @@ describe('A game', function() {
         this.game._id, this.playerA._id, cards
       );
 
+      const updatedGame = await threeThirteen.getGame(this.game._id);
       Assert.notEqual(oldArrangement, cards);
       Assert.equal(result.nModified, 1);
+      Assert.equal(updatedGame.currentRoundIndex, 0);
+      Assert.equal(updatedGame.currentRound.discardPile.length, 1);
+      Assert.equal(Object.keys(updatedGame.currentRound.hands).length, 2);
+      Assert.equal(updatedGame.currentRound.hands[this.playerA._id].length, 3);
+      Assert.equal(updatedGame.currentRound.hands[this.playerB._id].length, 3);
     });
   
-    it('player 1 starts turn picking up from the pile', async function() {
+    it('player 1 starts turn picking up from the discard pile', async function() {
       const result = await threeThirteen.startTurn(this.game._id, this.playerA._id);
+      
+      const updatedGame = await threeThirteen.getGame(this.game._id);
       Assert.equal(result.nModified, 1);
+      Assert.equal(updatedGame.currentRoundIndex, 0);
+      Assert.equal(updatedGame.currentRound.discardPile.length, 0);
+      Assert.equal(Object.keys(updatedGame.currentRound.hands).length, 2);
+      Assert.equal(updatedGame.currentRound.hands[this.playerA._id].length, 4);
+      Assert.equal(updatedGame.currentRound.hands[this.playerB._id].length, 3);
     });
 
-    it('player 2 finishes turn picking up from the pile', async function() {
+    it('player 2 finishes turn picking up from the discard pile', async function() {
       const game = await threeThirteen.getGame(this.game._id);
       const cardToDiscard = game.currentRound.hands[this.playerA._id].pop();
       const result = await threeThirteen.finishTurn(this.game._id, this.playerA._id, cardToDiscard);
+      
+      const updatedGame = await threeThirteen.getGame(this.game._id);
       Assert.equal(result.nModified, 1);
+      Assert.equal(updatedGame.currentRoundIndex, 1);
+      Assert.equal(updatedGame.currentRound.discardPile.length, 1);
+      Assert.equal(Object.keys(updatedGame.currentRound.hands).length, 2);
+      Assert.equal(updatedGame.currentRound.hands[this.playerA._id].length, 3);
+      Assert.equal(updatedGame.currentRound.hands[this.playerB._id].length, 3);
     });
   
   //   it('player 2 plays turn', function() {

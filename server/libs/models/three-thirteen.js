@@ -196,11 +196,13 @@ module.exports.finishTurn = async (gameId, playerId, cardToDiscard, nocks = fals
 
   const [card] = game.currentRound.hands[playerId].splice(cardIndex, 1);
   game.currentRound.discardPile.push(card);
+  game.currentRoundIndex++;
 
   const commandResult = await collection.updateOne({
     _id: gameId
   }, {
     $set: {
+      currentRoundIndex: game.currentRoundIndex,
       'currentRound.discardPile': game.currentRound.discardPile,
       [`currentRound.hands.${playerId}`]: game.currentRound.hands[playerId],
     }
