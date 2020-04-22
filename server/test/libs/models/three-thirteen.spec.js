@@ -60,8 +60,8 @@ describe('A game', function() {
         Assert.equal(game.currentRound.cards.length, cardLength);
         Assert.equal(game.currentRound.discardPile.length, discardPileLength);
         Assert.equal(Object.keys(game.currentRound.hands).length, handsLength);
-        // Assert.equal(game.currentRound.hands[this.playerA._id].length, playerAHandLength);
-        // Assert.equal(game.currentRound.hands[this.playerB._id].length, playerBHandLength);
+        Assert.equal(game.currentRound.hands[this.playerA._id].length, playerAHandLength);
+        Assert.equal(game.currentRound.hands[this.playerB._id].length, playerBHandLength);
       };
     });
 
@@ -118,7 +118,7 @@ describe('A game', function() {
       Assert.equal(result.nModified, 1);
 
       this.testCurrentRound(
-        updatedGame, 0, null, this.playerA._id.toString(), 47, 1, 2, 4, 3
+        updatedGame, 0, null, this.playerA._id.toString(), 47, 1, 2, 3, 3
       );
     });
   
