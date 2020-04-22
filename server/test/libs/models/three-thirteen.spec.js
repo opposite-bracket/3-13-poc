@@ -170,18 +170,6 @@ describe('A game', function() {
       Assert.equal(updatedGame.currentRound.hands[this.playerB._id].length, 3);
     });
   
-  //   it('player 2 plays turn', function() {
-  //     threeThirteen.playTurn();
-  //   });
-  
-  //   it('player 1 plays turn and nocks', function() {
-  //     threeThirteen.playTurn();
-  //   });
-  
-  //   it('player 2 plays turn', function() {
-  //     threeThirteen.playTurn();
-  //   });
-  
   //   it('finish hand', function() {
   //     threeThirteen.finishHand();
   //     threeThirteen.saveScore();
