@@ -19,7 +19,11 @@ const GAME_STATUS = module.exports.GAME_STATUS = {
   finished: 'FINISHED'
 };
 const FIRST_HAND_CARD_COUNT = 3;
+const LAST_HAND_COUNT = 11;
 
+/**
+ * @TODO: move to MongoDB
+ */
 const getCollection = async () => {
   console.debug(`getting collection ${COLLECTION}`);
   const mongo = await MongoDB.init();
@@ -40,8 +44,6 @@ module.exports.createGame = async (creatorId, creatorName, shuffleCount) => {
   const commandResult = await collection.insert({
     creatorId,
     shuffleCount,
-    nockingPlayerId: null,
-    currentTurn: 0,
     currentRoundIndex: 0,
     status: GAME_STATUS.open,
     players: [ { _id: creatorId, name: creatorName } ]
@@ -67,15 +69,24 @@ module.exports.joinPlayer = async (gameId, playerId, playerName) => {
   return commandResult.result;
 };
 
+/**
+ * @TODO: do this in one single query
+ * @TODO: add validation (when writing the service) rules:
+ *    . ensure there's at least 2 players
+ */
 module.exports.createCurrentHand = async (gameId, cards) => {
   console.debug(`adding cards for game #${gameId}`);
   
   const collection = await getCollection();
+  const game = await collection.findOne({ _id: gameId });
+  const firstPlayerId = game.players[0]._id;
   const commandResult = await collection.updateOne({
     _id: gameId
   }, {
     $set: {
       currentRound: {
+        nockingPlayerId: null,
+        currentTurn: firstPlayerId,
         cards,
         discardPile: [],
         hands: {}
@@ -186,7 +197,7 @@ module.exports.startTurn = async (gameId, playerId, picksFromDeck = true) => {
 };
 
 /**
- * @TODO: add validation rules:
+ * @TODO: add validation (when writing the service) rules:
  *    . playerId belongs to expected player to play
  *    . card exists in expected player's hand
  */
@@ -201,16 +212,16 @@ module.exports.finishTurn = async (gameId, playerId, cardToDiscard, nocks = fals
   const [card] = game.currentRound.hands[playerId].splice(cardIndex, 1);
   game.currentRound.discardPile.push(card);
 
-  game.currentRoundIndex++;
+  game.currentRound.currentTurn++;
 
-  game.nockingPlayerId = nocks ? playerId : null;
+  game.currentRound.nockingPlayerId = nocks ? playerId : null;
 
   const commandResult = await collection.updateOne({
     _id: gameId
   }, {
     $set: {
-      currentRoundIndex: game.currentRoundIndex,
-      nockingPlayerId: game.nockingPlayerId,
+      'currentRound.currentRoundIndex': game.currentRound.currentTurn,
+      'currentRound.nockingPlayerId': game.currentRound.nockingPlayerId,
       'currentRound.discardPile': game.currentRound.discardPile,
       [`currentRound.hands.${playerId}`]: game.currentRound.hands[playerId],
     }
@@ -220,8 +231,39 @@ module.exports.finishTurn = async (gameId, playerId, cardToDiscard, nocks = fals
   return commandResult.result;
 };
 
-module.exports.finishHand = async () => {};
-module.exports.saveScore = async () => {};
-module.exports.calculateWinner = async () => {};
-module.exports.saveWinner = async () => {};
+/**
+ * @TODO: this can be done with 1 query
+ * @TODO: add validation (when writing the service)
+ *    . nockingPlayerId must match playerId
+ */
+module.exports.finishRound = async (gameId, playerId, cards = []) => {
+  console.debug(`marking player #${playerId} as winner of #${gameId}`);
+
+  const collection = await getCollection();
+  const game = await collection.findOne({ _id: gameId });
+
+  if( game.currentRoundIndex === LAST_HAND_COUNT ) {
+    game.status = GAME_STATUS.locked;
+  }
+
+  const commandResult = await collection.updateOne({
+    _id: gameId
+  }, {
+    $set: {
+      status: game.status,
+      previousRounds: game.currentRound,
+      currentRound: {
+        nockingPlayerId: null,
+        currentTurn: 0,
+        cards,
+        discardPile: [],
+        hands: {}
+      }
+    }
+  });
+  console.debug('hand finished', commandResult.result);
+
+  return commandResult.result;
+};
+
 module.exports.endGame = async () => {};
